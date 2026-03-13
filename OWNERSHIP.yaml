@@ -1,0 +1,7 @@
+bounded_context: "contracts"
+service_id: "svc-ctr-openapi-catalog"
+application_id: "app.ctr.openapi-catalog"
+data_owner_pattern: "db_ctr_openapi_catalog_prod"
+event_namespace: "evt.ctr.openapi"
+owning_squad: "API Governance Guild"
+wave: "4"
