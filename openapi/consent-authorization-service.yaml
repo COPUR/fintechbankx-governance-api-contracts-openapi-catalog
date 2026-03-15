@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  title: Consent and Authorization Service API
+  version: 0.1.0
+  description: API to create, authorize, list, and revoke consents.
+servers:
+  - url: https://api.example.com/open-finance/v1
+paths:
+  /consents:
+    post:
+      summary: Create consent
+      operationId: createConsent
+      tags:
+        - Consents
+      security:
+        - dpopAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/DPoP'
+        - $ref: '#/components/parameters/InteractionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentCreateRequest'
+      responses:
+        '201':
+          description: Consent created
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Invalid consent request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List consents by customer
+      operationId: listConsents
+      tags:
+        - Consents
+      security:
+        - dpopAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/DPoP'
+        - $ref: '#/components/parameters/InteractionId'
+        - name: customerId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Consents list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsentResponse'
+  /consents/{ConsentId}:
+    get:
+      summary: Retrieve consent
+      operationId: getConsent
+      tags:
+        - Consents
+      security:
+        - dpopAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/DPoP'
+        - $ref: '#/components/parameters/InteractionId'
+        - name: ConsentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Consent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '404':
+          description: Consent not found
+  /consents/{ConsentId}/authorize:
+    post:
+      summary: Authorize consent
+      operationId: authorizeConsent
+      tags:
+        - Consents
+      security:
+        - dpopAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/DPoP'
+        - $ref: '#/components/parameters/InteractionId'
+        - name: ConsentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Consent authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '404':
+          description: Consent not found
+  /consents/{ConsentId}/revoke:
+    patch:
+      summary: Revoke consent
+      operationId: revokeConsent
+      tags:
+        - Consents
+      security:
+        - dpopAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/DPoP'
+        - $ref: '#/components/parameters/InteractionId'
+        - name: ConsentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeConsentRequest'
+      responses:
+        '200':
+          description: Consent revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '404':
+          description: Consent not found
+components:
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+    DPoP:
+      name: DPoP
+      in: header
+      required: true
+      schema:
+        type: string
+    InteractionId:
+      name: X-FAPI-Interaction-ID
+      in: header
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    dpopAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ConsentCreateRequest:
+      type: object
+      required:
+        - customerId
+        - participantId
+        - scopes
+        - purpose
+        - expiresAt
+      properties:
+        customerId:
+          type: string
+        participantId:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        purpose:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    RevokeConsentRequest:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+    ConsentResponse:
+      type: object
+      properties:
+        consentId:
+          type: string
+        customerId:
+          type: string
+        participantId:
+          type: string
+        status:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        purpose:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        authorizedAt:
+          type: string
+          format: date-time
+        revokedAt:
+          type: string
+          format: date-time
+        revocationReason:
+          type: string
+        active:
+          type: boolean
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        interactionId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
