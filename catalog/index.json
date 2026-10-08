@@ -66,13 +66,13 @@
       "info": { "title": "Compliance Context Service API", "version": "1.0.0" },
       "openProviderChanges": [
         {
-          "pr": 12,
-          "branch": "claude/project-thread-ty79y4",
-          "summary": "Adds operation descriptions, 400/401/403/409 responses with a new ErrorResponse schema, and a typed 404 body.",
-          "compatibility": "additive: oasdiff 1.12.1 breaking --fail-on ERR, provider main vs PR branch, 0 errors (exit 0)"
+          "pr": 13,
+          "branch": "claude/customer-risk-compliance-deployable-ygi0zo",
+          "summary": "Supersedes the closed PR #12. Adds operation descriptions, 400/401/403/409 responses with a new ErrorResponse schema and a typed 404 body; POST /api/v1/compliance/screen now requires sanctionsHit and pep.",
+          "compatibility": "breaking, accepted by provider waiver (2 lines): oasdiff 1.12.1, provider main vs PR head 427fdd4, 2 errors (request-property-became-required: sanctionsHit, pep), 0 with api/openapi/compliance-context.accepted-breaking.txt"
         }
       ],
-      "note": "Identical to provider main and to the monolith copy. Becomes drifted when provider PR #12 merges; mirror it in a follow-up catalog PR."
+      "note": "Identical to provider main and to the monolith copy. When provider PR #13 merges, the catalog mirror PR copies the spec and its accepted-breaking file; the waiver must be deleted in the next PR that touches the spec."
     },
     {
       "file": "openapi/confirmation-of-payee-service.yaml",
@@ -112,7 +112,7 @@
           "pr": 13,
           "branch": "claude/customer-risk-compliance-deployable-ygi0zo",
           "summary": "Supersedes the closed PR #12. Makes CustomerResponse.email optional and nullable (customers migrated from the monolith have no e-mail), makes x-idempotency-key required on credit reserve/release and adds 409/422 responses.",
-          "compatibility": "breaking: oasdiff 1.12.1 reports 12 errors; the provider records them in api/openapi/customer-context.accepted-breaking.txt, which the catalog mirror copies (the catalog oasdiff gate reads waivers since this PR)"
+          "compatibility": "breaking, accepted by provider waiver: oasdiff 1.12.1, provider main vs PR head 52dec33, 20 errors, 0 with api/openapi/customer-context.accepted-breaking.txt, which the catalog mirror copies (the catalog oasdiff gate reads waivers since this PR)"
         }
       ],
       "note": "Identical to provider main and to the monolith copy. When provider PR #13 merges, the catalog mirror PR copies the spec and its accepted-breaking file; the waiver must be deleted in the next PR that touches the spec."
@@ -195,13 +195,13 @@
       "info": { "title": "Risk Context Service API", "version": "1.0.0" },
       "openProviderChanges": [
         {
-          "pr": 12,
-          "branch": "claude/project-thread-ty79y4",
-          "summary": "Adds operation descriptions, 400/401/403/409 responses with a new ErrorResponse schema, and a typed 404 body.",
-          "compatibility": "additive: oasdiff 1.12.1 breaking --fail-on ERR, provider main vs PR branch, 0 errors (exit 0)"
+          "pr": 13,
+          "branch": "claude/customer-risk-compliance-deployable-ygi0zo",
+          "summary": "Supersedes the closed PR #12. Adds operation descriptions, 400/401/403/409 responses with a new ErrorResponse schema and a typed 404 body; POST /api/v1/risk/assess now requires highRiskCountry.",
+          "compatibility": "breaking, accepted by provider waiver (1 line): oasdiff 1.12.1, provider main vs PR head d51d33e, 1 error (request-property-became-required: highRiskCountry), 0 with api/openapi/risk-context.accepted-breaking.txt"
         }
       ],
-      "note": "Identical to provider main and to the monolith copy. Becomes drifted when provider PR #12 merges."
+      "note": "Identical to provider main and to the monolith copy. When provider PR #13 merges, the catalog mirror PR copies the spec and its accepted-breaking file; the waiver must be deleted in the next PR that touches the spec."
     },
     {
       "file": null,
