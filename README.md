@@ -43,6 +43,12 @@ Bu repository, FinTechBankX DDD/EDA dönüşümünde **svc-ctr-openapi-catalog**
 - Feature branch kuralı: `codex/<kisa-aciklama>`.
 - Release yaklaşımı: PR + required status checks + tag tabanlı sürümleme.
 
+## Catalog Index (Proposed)
+- Specs live in `openapi/*.yaml`; each one mirrors its provider repo's spec, which stays the source of truth.
+- [`catalog/index.json`](./catalog/index.json) maps every spec to its service id, owner repo, provider spec path, monolith source and status (`mirrored`, `drifted`, `provider-missing`, `catalog-only`, `expected`).
+- `npm test` runs [`scripts/ci/check-catalog-index.mjs`](./scripts/ci/check-catalog-index.mjs) in `ci/test`; [`scripts/catalog/check-provider-drift.sh`](./scripts/catalog/check-provider-drift.sh) reports provider drift (weekly `provider-drift` workflow, non-blocking).
+- Provider-first change flow: [API Catalogue](./docs/API_CATALOGUE.md#catalog-index-and-provider-to-catalog-flow).
+
 ## Dokümantasyon ve Referanslar
 - [Enterprise Architecture Hub](https://github.com/COPUR/fintechbankx-governance-architecture-enablement-enterprise-architecture)
 - [Secure Microservices Architecture](https://github.com/COPUR/fintechbankx-governance-architecture-enablement-enterprise-architecture/blob/main/docs/architecture/overview/SECURE_MICROSERVICES_ARCHITECTURE.md)
