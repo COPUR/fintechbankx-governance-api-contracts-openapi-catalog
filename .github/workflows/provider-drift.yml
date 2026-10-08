@@ -1,0 +1,58 @@
+name: provider-drift
+
+# Informational report: compares every catalog spec with its provider spec.
+# Not a required check and never runs on pull requests, so it cannot block a PR.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Provider branch to compare against
+        required: false
+        default: main
+      strict:
+        description: Fail the run when drift or an out-of-date index status is found
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    - cron: '17 6 * * 1'   # weekly, Monday 06:17 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-drift
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    name: provider-drift/report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install oasdiff
+        shell: bash
+        run: |
+          tmpdir="$(mktemp -d)"
+          curl -sSfL https://github.com/oasdiff/oasdiff/releases/download/v1.12.1/oasdiff_1.12.1_linux_amd64.tar.gz \
+            | tar -xz -C "$tmpdir"
+          sudo install "$tmpdir/oasdiff" /usr/local/bin/oasdiff
+          rm -rf "$tmpdir"
+
+      - name: Compare catalog specs with provider specs
+        shell: bash
+        env:
+          # Optional read-only token for the private provider repos. Without it,
+          # private providers are reported as "unverified".
+          PROVIDER_SPECS_TOKEN: ${{ secrets.PROVIDER_SPECS_READ_TOKEN }}
+          REF: ${{ inputs.ref || 'main' }}
+          STRICT: ${{ inputs.strict && '--strict' || '' }}
+        run: |
+          bash scripts/catalog/check-provider-drift.sh --ref "$REF" --out "$GITHUB_STEP_SUMMARY" $STRICT
