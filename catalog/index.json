@@ -109,13 +109,13 @@
       "info": { "title": "Customer Context Service API", "version": "1.0.0" },
       "openProviderChanges": [
         {
-          "pr": 12,
-          "branch": "claude/project-thread-ty79y4",
-          "summary": "Makes CustomerResponse.email optional and nullable (customers migrated from the monolith have no e-mail), adds an optional x-idempotency-key header plus 409/422 responses on credit reserve/release.",
-          "compatibility": "breaking: oasdiff 1.12.1 reports 10 errors (email became optional and nullable on 5 operations); the provider records the accepted oasdiff errors in api/openapi/customer-context.accepted-breaking.txt (10 lines)"
+          "pr": 13,
+          "branch": "claude/customer-risk-compliance-deployable-ygi0zo",
+          "summary": "Supersedes the closed PR #12. Makes CustomerResponse.email optional and nullable (customers migrated from the monolith have no e-mail), makes x-idempotency-key required on credit reserve/release and adds 409/422 responses.",
+          "compatibility": "breaking: oasdiff 1.12.1 reports 12 errors; the provider records them in api/openapi/customer-context.accepted-breaking.txt, which the catalog mirror copies (the catalog oasdiff gate reads waivers since this PR)"
         }
       ],
-      "note": "Identical to provider main and to the monolith copy. When provider PR #12 merges, the catalog mirror PR will fail this repo's oasdiff gate, which does not read <spec>.accepted-breaking.txt today; see docs/API_CATALOGUE.md 'Provider to catalog flow'."
+      "note": "Identical to provider main and to the monolith copy. When provider PR #13 merges, the catalog mirror PR copies the spec and its accepted-breaking file; the waiver must be deleted in the next PR that touches the spec."
     },
     {
       "file": "openapi/loan-context.yaml",
@@ -236,8 +236,15 @@
       "monolithSource": null,
       "status": "expected",
       "info": { "title": "Request to Pay Service API", "version": "0.1.0" },
-      "openProviderChanges": [],
-      "note": "Provider spec exists on main (added in provider PR #6); the monolith has no standalone spec (capability of open-finance-context). Needs a catalog mirror PR as openapi/request-to-pay-service.yaml."
+      "openProviderChanges": [
+        {
+          "pr": 14,
+          "branch": "claude/lending-payments-deployable-zxfdi1",
+          "summary": "Realigns the spec (1.0.0) with the TPP API the monolith served: /open-finance/v1/par and /open-finance/v1/payment-consents/{consentId}[/accept|/reject], Data.PsuId and Data.InstructedAmount, DPoP. Proposed ADR in the provider repo; pending the API owner's acceptance.",
+          "compatibility": "breaking against provider main 0.1.0 (6 oasdiff errors in the provider's accepted-breaking file); no catalog break, because the catalog has no copy yet"
+        }
+      ],
+      "note": "Provider spec exists on main (added in provider PR #6, 0.1.0) but no service ever served it. The catalog mirror is held until provider PR #14 is accepted and merged, then it lands as openapi/request-to-pay-service.yaml at 1.0.0 (status mirrored)."
     }
   ]
 }
