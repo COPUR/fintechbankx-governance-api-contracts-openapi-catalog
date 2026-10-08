@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "documentStatus": "Proposed",
+  "description": "Machine-readable index of the OpenAPI catalog. One entry per spec in openapi/, plus 'expected' entries for providers that publish a spec that is not mirrored here yet. Checked by scripts/ci/check-catalog-index.mjs (ci/test); provider drift is reported by scripts/catalog/check-provider-drift.sh.",
+  "statusVocabulary": {
+    "mirrored": "Catalog file is byte-identical to the provider spec on the provider's main branch at driftCheck.checkedAt.",
+    "drifted": "Catalog file differs from the provider spec on the provider's main branch. Fix with a catalog mirror PR, never by editing the catalog first.",
+    "provider-missing": "The owning provider repo has no spec on main, so the catalog copy has no upstream.",
+    "catalog-only": "Spec exists only in this catalog (seeded from the monolith) and no provider publishes it.",
+    "expected": "Provider publishes a spec on main but the catalog has no mirror yet (file is null)."
+  },
+  "driftCheck": {
+    "checkedAt": "2026-10-08",
+    "method": "git blob comparison of openapi/<file> against <providerRepo> origin/main:<providerSpecPath>; open PRs listed from the GitHub REST API",
+    "monolith": {
+      "repo": "COPUR/enterprise-loan-management-system",
+      "ref": "master",
+      "commit": "ffe83796"
+    }
+  },
+  "entries": [
+    {
+      "file": "openapi/atm-directory-service.yaml",
+      "serviceId": "svc-of-atm-directory",
+      "ownerRepo": "COPUR/fintechbankx-openfinance-open-data-atm-directory",
+      "providerSpecPath": "api/openapi/atm-directory-service.yaml",
+      "providerCommit": "62816d7",
+      "monolithSource": "api/openapi/atm-directory-service.yaml",
+      "status": "mirrored",
+      "info": { "title": "ATM Directory Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Public endpoint (security: []). Identical to provider main. Differs from the monolith copy, which lacks the operation-level 'security: []' the provider added in its phase5 guardrail PR; the provider is authoritative."
+    },
+    {
+      "file": "openapi/banking-metadata-service.yaml",
+      "serviceId": "svc-of-banking-metadata",
+      "ownerRepo": "COPUR/fintechbankx-openfinance-payee-metadata-banking-metadata",
+      "providerSpecPath": "api/openapi/banking-metadata-service.yaml",
+      "providerCommit": "c68d89e",
+      "monolithSource": "api/openapi/banking-metadata-service.yaml",
+      "status": "mirrored",
+      "info": { "title": "Banking Metadata Enrichment Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Identical to provider main and to the monolith copy."
+    },
+    {
+      "file": "openapi/business-financial-data-service.yaml",
+      "serviceId": "svc-of-business-financial-data",
+      "ownerRepo": "COPUR/fintechbankx-openfinance-corporate-data-business-financial",
+      "providerSpecPath": "api/openapi/business-financial-data-service.yaml",
+      "providerCommit": "5cd64b4",
+      "monolithSource": "api/openapi/business-financial-data-service.yaml",
+      "status": "mirrored",
+      "info": { "title": "Business Financial Data Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Identical to provider main and to the monolith copy."
+    },
+    {
+      "file": "openapi/compliance-context.yaml",
+      "serviceId": "svc-cmp-evidence",
+      "ownerRepo": "COPUR/fintechbankx-riskcompliance-compliance-evidence-core",
+      "providerSpecPath": "api/openapi/compliance-context.yaml",
+      "providerCommit": "a34236f",
+      "monolithSource": "api/openapi/compliance-context.yaml",
+      "status": "mirrored",
+      "info": { "title": "Compliance Context Service API", "version": "1.0.0" },
+      "openProviderChanges": [
+        {
+          "pr": 12,
+          "branch": "claude/project-thread-ty79y4",
+          "summary": "Adds operation descriptions, 400/401/403/409 responses with a new ErrorResponse schema, and a typed 404 body.",
+          "compatibility": "additive: oasdiff 1.12.1 breaking --fail-on ERR, provider main vs PR branch, 0 errors (exit 0)"
+        }
+      ],
+      "note": "Identical to provider main and to the monolith copy. Becomes drifted when provider PR #12 merges; mirror it in a follow-up catalog PR."
+    },
+    {
+      "file": "openapi/confirmation-of-payee-service.yaml",
+      "serviceId": "svc-of-payee-verification",
+      "ownerRepo": "COPUR/fintechbankx-openfinance-payee-metadata-payee-verification",
+      "providerSpecPath": "api/openapi/confirmation-of-payee-service.yaml",
+      "providerCommit": "fa0b260",
+      "monolithSource": "api/openapi/confirmation-of-payee-service.yaml",
+      "status": "mirrored",
+      "info": { "title": "Confirmation of Payee Verification Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Identical to provider main and to the monolith copy."
+    },
+    {
+      "file": "openapi/consent-authorization-service.yaml",
+      "serviceId": "svc-of-consent-authorization",
+      "ownerRepo": "COPUR/fintechbankx-openfinance-consent-auth-service",
+      "providerSpecPath": "api/openapi/consent-authorization-service.yaml",
+      "providerCommit": "84cb79d",
+      "monolithSource": "api/openapi/consent-authorization-service.yaml",
+      "status": "mirrored",
+      "info": { "title": "Consent and Authorization Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Identical to provider main and to the monolith copy. The provider also publishes src/main/resources/openapi/internal-jwt-lifecycle-service.yaml (internal, exempt from the FAPI/DPoP guard); it is not catalogued. Whether internal specs belong in this catalog is an open API Governance Guild decision."
+    },
+    {
+      "file": "openapi/customer-context.yaml",
+      "serviceId": "svc-cus-profile-kyc",
+      "ownerRepo": "COPUR/fintechbankx-customer-profile-kyc-core",
+      "providerSpecPath": "api/openapi/customer-context.yaml",
+      "providerCommit": "48a8522",
+      "monolithSource": "api/openapi/customer-context.yaml",
+      "status": "mirrored",
+      "info": { "title": "Customer Context Service API", "version": "1.0.0" },
+      "openProviderChanges": [
+        {
+          "pr": 12,
+          "branch": "claude/project-thread-ty79y4",
+          "summary": "Makes CustomerResponse.email optional and nullable (customers migrated from the monolith have no e-mail), adds an optional x-idempotency-key header plus 409/422 responses on credit reserve/release.",
+          "compatibility": "breaking: oasdiff 1.12.1 reports 10 errors (email became optional and nullable on 5 operations); the provider records the accepted oasdiff errors in api/openapi/customer-context.accepted-breaking.txt (10 lines)"
+        }
+      ],
+      "note": "Identical to provider main and to the monolith copy. When provider PR #12 merges, the catalog mirror PR will fail this repo's oasdiff gate, which does not read <spec>.accepted-breaking.txt today; see docs/API_CATALOGUE.md 'Provider to catalog flow'."
+    },
+    {
+      "file": "openapi/loan-context.yaml",
+      "serviceId": "svc-ln-loan-lifecycle",
+      "ownerRepo": "COPUR/fintechbankx-lendingpayments-loan-lifecycle-core",
+      "providerSpecPath": "api/openapi/loan-context.yaml",
+      "providerCommit": "2c7b05a",
+      "monolithSource": "api/openapi/loan-context.yaml",
+      "status": "mirrored",
+      "info": { "title": "Loan Context Service API", "version": "1.0.0" },
+      "openProviderChanges": [],
+      "note": "Identical to provider main and to the monolith copy. Open provider PR #14 does not change the spec."
+    },
+    {
+      "file": "openapi/open-finance-context.yaml",
+      "serviceId": "svc-ctr-openapi-catalog",
+      "ownerRepo": "COPUR/fintechbankx-governance-api-contracts-openapi-catalog",
+      "providerSpecPath": null,
+      "providerCommit": null,
+      "monolithSource": "api/openapi/open-finance-context.yaml",
+      "status": "catalog-only",
+      "info": { "title": "Open Finance Context Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Placeholder with 'paths: {}' (0 endpoints), copied from the monolith; no provider publishes it and it describes no API. Its capabilities now have their own provider specs (recurring mandates, bulk orchestration, request to pay; see the expected entries). Owner is recorded as this catalog only because nobody else holds it. Candidate for removal, which is an API Governance Guild decision."
+    },
+    {
+      "file": "openapi/open-products-service.yaml",
+      "serviceId": "svc-of-open-products-catalog",
+      "ownerRepo": "COPUR/fintechbankx-openfinance-open-data-products-catalog",
+      "providerSpecPath": "api/openapi/open-products-service.yaml",
+      "providerCommit": "d4a6bac",
+      "monolithSource": "api/openapi/open-products-service.yaml",
+      "status": "mirrored",
+      "info": { "title": "Open Products Catalog Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Public endpoint (security: []). Identical to provider main. Differs from the monolith copy, which lacks the operation-level 'security: []' the provider added; the provider is authoritative."
+    },
+    {
+      "file": "openapi/payment-context.yaml",
+      "serviceId": "svc-pay-initiation-settlement",
+      "ownerRepo": "COPUR/fintechbankx-lendingpayments-payment-orchestration-initiation-settlement",
+      "providerSpecPath": "api/openapi/payment-context.yaml",
+      "providerCommit": "18f2352",
+      "monolithSource": "api/openapi/payment-context.yaml",
+      "status": "mirrored",
+      "info": { "title": "Payment Context Service API", "version": "1.0.0" },
+      "openProviderChanges": [
+        {
+          "pr": 14,
+          "branch": "claude/project-thread-ty79y4",
+          "summary": "Adds an optional x-idempotency-key header and a 409 response to processPayment.",
+          "compatibility": "additive: oasdiff 1.12.1 breaking --fail-on ERR, provider main vs PR branch, 0 errors (exit 0)"
+        }
+      ],
+      "note": "Identical to provider main and to the monolith copy. Becomes drifted when provider PR #14 merges."
+    },
+    {
+      "file": "openapi/personal-financial-data-service.yaml",
+      "serviceId": "svc-of-personal-financial-data",
+      "ownerRepo": "COPUR/fintechbankx-openfinance-retail-data-personal-financial",
+      "providerSpecPath": "api/openapi/personal-financial-data-service.yaml",
+      "providerCommit": "7fadd33",
+      "monolithSource": "api/openapi/personal-financial-data-service.yaml",
+      "status": "mirrored",
+      "info": { "title": "Personal Financial Data Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Identical to provider main and to the monolith copy."
+    },
+    {
+      "file": "openapi/risk-context.yaml",
+      "serviceId": "svc-rsk-decisioning",
+      "ownerRepo": "COPUR/fintechbankx-riskcompliance-risk-decisioning-core",
+      "providerSpecPath": "api/openapi/risk-context.yaml",
+      "providerCommit": "f48f755",
+      "monolithSource": "api/openapi/risk-context.yaml",
+      "status": "mirrored",
+      "info": { "title": "Risk Context Service API", "version": "1.0.0" },
+      "openProviderChanges": [
+        {
+          "pr": 12,
+          "branch": "claude/project-thread-ty79y4",
+          "summary": "Adds operation descriptions, 400/401/403/409 responses with a new ErrorResponse schema, and a typed 404 body.",
+          "compatibility": "additive: oasdiff 1.12.1 breaking --fail-on ERR, provider main vs PR branch, 0 errors (exit 0)"
+        }
+      ],
+      "note": "Identical to provider main and to the monolith copy. Becomes drifted when provider PR #12 merges."
+    },
+    {
+      "file": null,
+      "serviceId": "svc-pay-recurring-mandates",
+      "ownerRepo": "COPUR/fintechbankx-lendingpayments-payment-orchestration-recurring-mandates",
+      "providerSpecPath": "api/openapi/recurring-mandates-service.yaml",
+      "providerCommit": "9d35116",
+      "monolithSource": null,
+      "status": "expected",
+      "info": { "title": "Recurring Mandates Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Provider spec exists on main (added in provider PR #6); the monolith has no standalone spec (capability of open-finance-context). Needs a catalog mirror PR as openapi/recurring-mandates-service.yaml."
+    },
+    {
+      "file": null,
+      "serviceId": "svc-pay-bulk-orchestration",
+      "ownerRepo": "COPUR/fintechbankx-lendingpayments-payment-orchestration-bulk-orchestration",
+      "providerSpecPath": "api/openapi/bulk-orchestration-service.yaml",
+      "providerCommit": "1c8301d",
+      "monolithSource": null,
+      "status": "expected",
+      "info": { "title": "Bulk Orchestration Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Provider spec exists on main (added in provider PR #6); the monolith has no standalone spec (capability of open-finance-context). Needs a catalog mirror PR as openapi/bulk-orchestration-service.yaml."
+    },
+    {
+      "file": null,
+      "serviceId": "svc-pay-request-to-pay",
+      "ownerRepo": "COPUR/fintechbankx-lendingpayments-payment-orchestration-request-to-pay",
+      "providerSpecPath": "api/openapi/request-to-pay-service.yaml",
+      "providerCommit": "00d8207",
+      "monolithSource": null,
+      "status": "expected",
+      "info": { "title": "Request to Pay Service API", "version": "0.1.0" },
+      "openProviderChanges": [],
+      "note": "Provider spec exists on main (added in provider PR #6); the monolith has no standalone spec (capability of open-finance-context). Needs a catalog mirror PR as openapi/request-to-pay-service.yaml."
+    }
+  ]
+}
