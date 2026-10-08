@@ -49,6 +49,15 @@ Bu repository, FinTechBankX DDD/EDA dönüşümünde **svc-ctr-openapi-catalog**
 - `npm test` runs [`scripts/ci/check-catalog-index.mjs`](./scripts/ci/check-catalog-index.mjs) in `ci/test`; [`scripts/catalog/check-provider-drift.sh`](./scripts/catalog/check-provider-drift.sh) reports provider drift (weekly `provider-drift` workflow, non-blocking).
 - Provider-first change flow: [API Catalogue](./docs/API_CATALOGUE.md#catalog-index-and-provider-to-catalog-flow).
 
+## Accepted Breaking Changes (Proposed)
+
+`scripts/ci/oasdiff-breaking.sh` (`ci/contract`) fails on any oasdiff error. A mirrored spec whose provider accepted a
+breaking change carries the provider's waiver file next to it, `openapi/<spec>.accepted-breaking.txt`, copied from the
+provider PR: first line `# Accepted <date> <decision>: <reason>`, then one oasdiff error per line. Anything not listed
+still fails. A waiver covers one change: it must be new in the PR (or carry a new `# Accepted` line), and the spec
+must change with it. After the mirror merges, the waiver is stale. It is never applied again; a later PR that
+touches that spec must delete it, and the weekly provider-drift report lists stale waivers until someone does.
+
 ## Dokümantasyon ve Referanslar
 - [Enterprise Architecture Hub](https://github.com/COPUR/fintechbankx-governance-architecture-enablement-enterprise-architecture)
 - [Secure Microservices Architecture](https://github.com/COPUR/fintechbankx-governance-architecture-enablement-enterprise-architecture/blob/main/docs/architecture/overview/SECURE_MICROSERVICES_ARCHITECTURE.md)

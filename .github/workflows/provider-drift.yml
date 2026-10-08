@@ -56,3 +56,7 @@ jobs:
           STRICT: ${{ inputs.strict && '--strict' || '' }}
         run: |
           bash scripts/catalog/check-provider-drift.sh --ref "$REF" --out "$GITHUB_STEP_SUMMARY" $STRICT
+          stale=$(git ls-files 'openapi/*.accepted-breaking.txt')
+          if [ -n "$stale" ]; then
+            { echo; echo "### Stale breaking-change waivers on main (delete in a PR)"; echo; echo "$stale" | sed 's/^/- /'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
