@@ -1,0 +1,14 @@
+{
+  "name": "fintechbankx-governance-api-contracts-openapi-catalog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenAPI catalog for FinTechBankX providers: catalog index checks (no runtime dependencies).",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node scripts/ci/check-catalog-index.mjs"
+  }
+}

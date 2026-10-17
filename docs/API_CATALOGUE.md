@@ -1,34 +1,68 @@
 # API Catalogue
 
-This catalogue is generated from the OpenAPI contracts under `api/openapi`.
+This catalogue is generated from the OpenAPI contracts under `openapi/` in this repository.
 
-- Source of truth: `api/openapi/*.yaml`
-- Generated at: 2026-02-26T15:18:15Z
+- Catalog source: `openapi/*.yaml` (mirrors of the provider specs; each provider repo is the source of truth for its own spec)
+- Machine-readable index: [`catalog/index.json`](../catalog/index.json)
+- Endpoint tables generated at: 2026-02-26T15:18:15Z (from the monolith's `api/openapi/`; endpoint data re-checked against `openapi/*.yaml` on 2026-10-08)
 - Scope: Open Finance capability services + bounded-context services
+
+## Catalog index and provider to catalog flow
+
+Status: **Proposed** (target-state process; adopted when the API Governance Guild merges it).
+
+[`catalog/index.json`](../catalog/index.json) has one entry per spec in `openapi/`, plus `expected` entries for provider specs that are not mirrored yet. Each entry records the `serviceId`, the owning repository (`ownerRepo`), where the spec lives in that repository (`providerSpecPath`), the monolith file it was seeded from (`monolithSource`), `info.version`, open provider PRs that change the spec, and a `status`:
+
+| Status | Meaning |
+|---|---|
+| `mirrored` | Byte-identical to the provider spec on the provider's `main`. |
+| `drifted` | Differs from the provider spec on `main`; needs a mirror PR. |
+| `provider-missing` | The owning provider has no spec on `main`. |
+| `catalog-only` | Exists only here (seeded from the monolith); no provider publishes it. |
+| `expected` | The provider publishes a spec on `main` that is not mirrored here yet (`file` is `null`). |
+
+Checks:
+
+- `npm test` (runs `scripts/ci/check-catalog-index.mjs`, part of `ci/test`) fails when a spec has no index entry, an entry points at a missing file, a required field is missing, a status is not in the set above, `ownerRepo` is not a `COPUR/fintechbankx-*` repository, or `info.version` disagrees with the spec.
+- `scripts/catalog/check-provider-drift.sh` compares every entry with its provider spec and prints a table. It runs weekly and on demand in the `provider-drift` workflow, which is informational and never runs on pull requests. Private provider repos need a read-only token in the `PROVIDER_SPECS_READ_TOKEN` repository secret; without it they show as `unverified`.
+
+Flow for a contract change:
+
+1. **Provider PR first.** The owning service changes `api/openapi/<file>.yaml` in the same PR as the code, and passes its own Redocly, oasdiff and FAPI/DPoP gates.
+2. **Catalog mirror PR second.** After the provider PR merges, copy the provider file unchanged to `openapi/<file>.yaml` here (keep the existing file name so oasdiff keeps its baseline), update the entry in `catalog/index.json` (`status`, `info.version`, `providerCommit`, `openProviderChanges`) and regenerate this document. Never edit a spec here first.
+3. **oasdiff on the mirror.** `ci/test` runs `scripts/ci/oasdiff-breaking.sh` against `origin/main`, so the mirror PR shows the same breaking changes the provider accepted.
+4. **Accepted breaking changes.** If the provider accepted a breaking change, it lists the exact oasdiff errors in `<spec>.accepted-breaking.txt` next to the spec (for example `api/openapi/customer-context.accepted-breaking.txt` in `COPUR/fintechbankx-customer-profile-kyc-core` PR #13). The mirror PR copies that file unchanged to `openapi/<spec>.accepted-breaking.txt`, and `scripts/ci/oasdiff-breaking.sh` passes it to oasdiff as `--err-ignore`. The rules, as implemented:
+   - The first line is the header `# Accepted <date> <decision>: <reason>`; a waiver without it fails.
+   - A waiver applies only when it is fresh: absent on the base branch, or carrying a new `# Accepted` line, and the spec changes in the same PR.
+   - After the mirror merges the waiver is stale and never applied again. The next PR that touches that spec or the waiver must delete it (it fails otherwise), and the weekly provider-drift report lists stale waivers until then.
+   - Anything not listed still fails. A breaking change the provider has not accepted needs a new major version (a new spec file), not an edit. Who may accept a waiver is decided in ADR-022 section 3 (`fintechbankx-governance-architecture-enablement-adr-runbooks`).
+5. **Consumers last.** Consumers move only after the catalog mirror is merged.
+
+New provider specs (the `expected` entries: recurring mandates, bulk orchestration, request to pay) arrive the same way: one mirror PR per provider that adds `openapi/<file>.yaml` and switches the entry from `expected` to `mirrored`.
 
 ## Service Inventory
 
 | Service | Contract | Title | Version | Endpoints | Security Schemes |
 |---|---|---|---|---:|---|
-| `atm-directory-service` | `api/openapi/atm-directory-service.yaml` | ATM Directory Service API | `0.1.0` | 1 | public |
-| `banking-metadata-service` | `api/openapi/banking-metadata-service.yaml` | Banking Metadata Enrichment Service API | `0.1.0` | 4 | bearerAuth, dpopAuth |
-| `business-financial-data-service` | `api/openapi/business-financial-data-service.yaml` | Business Financial Data Service API | `0.1.0` | 3 | bearerAuth, dpopAuth |
-| `compliance-context` | `api/openapi/compliance-context.yaml` | Compliance Context Service API | `1.0.0` | 2 | bearerAuth, dpopAuth |
-| `confirmation-of-payee-service` | `api/openapi/confirmation-of-payee-service.yaml` | Confirmation of Payee Verification Service API | `0.1.0` | 1 | bearerAuth, dpopAuth |
-| `consent-authorization-service` | `api/openapi/consent-authorization-service.yaml` | Consent and Authorization Service API | `0.1.0` | 5 | dpopAuth |
-| `customer-context` | `api/openapi/customer-context.yaml` | Customer Context Service API | `1.0.0` | 5 | bearerAuth, dpopAuth |
-| `loan-context` | `api/openapi/loan-context.yaml` | Loan Context Service API | `1.0.0` | 7 | bearerAuth, dpopAuth |
-| `open-finance-context` | `api/openapi/open-finance-context.yaml` | Open Finance Context Service API | `0.1.0` | 0 | bearerAuth, dpopAuth |
-| `open-products-service` | `api/openapi/open-products-service.yaml` | Open Products Catalog Service API | `0.1.0` | 1 | public |
-| `payment-context` | `api/openapi/payment-context.yaml` | Payment Context Service API | `1.0.0` | 6 | bearerAuth, dpopAuth |
-| `personal-financial-data-service` | `api/openapi/personal-financial-data-service.yaml` | Personal Financial Data Service API | `0.1.0` | 7 | bearerAuth, dpopAuth |
-| `risk-context` | `api/openapi/risk-context.yaml` | Risk Context Service API | `1.0.0` | 2 | bearerAuth, dpopAuth |
+| `atm-directory-service` | `openapi/atm-directory-service.yaml` | ATM Directory Service API | `0.1.0` | 1 | public |
+| `banking-metadata-service` | `openapi/banking-metadata-service.yaml` | Banking Metadata Enrichment Service API | `0.1.0` | 4 | bearerAuth, dpopAuth |
+| `business-financial-data-service` | `openapi/business-financial-data-service.yaml` | Business Financial Data Service API | `0.1.0` | 3 | bearerAuth, dpopAuth |
+| `compliance-context` | `openapi/compliance-context.yaml` | Compliance Context Service API | `1.0.0` | 2 | bearerAuth, dpopAuth |
+| `confirmation-of-payee-service` | `openapi/confirmation-of-payee-service.yaml` | Confirmation of Payee Verification Service API | `0.1.0` | 1 | bearerAuth, dpopAuth |
+| `consent-authorization-service` | `openapi/consent-authorization-service.yaml` | Consent and Authorization Service API | `0.1.0` | 5 | dpopAuth |
+| `customer-context` | `openapi/customer-context.yaml` | Customer Context Service API | `1.0.0` | 5 | bearerAuth, dpopAuth |
+| `loan-context` | `openapi/loan-context.yaml` | Loan Context Service API | `1.0.0` | 7 | bearerAuth, dpopAuth |
+| `open-finance-context` | `openapi/open-finance-context.yaml` | Open Finance Context Service API | `0.1.0` | 0 | bearerAuth, dpopAuth |
+| `open-products-service` | `openapi/open-products-service.yaml` | Open Products Catalog Service API | `0.1.0` | 1 | public |
+| `payment-context` | `openapi/payment-context.yaml` | Payment Context Service API | `1.0.0` | 6 | bearerAuth, dpopAuth |
+| `personal-financial-data-service` | `openapi/personal-financial-data-service.yaml` | Personal Financial Data Service API | `0.1.0` | 7 | bearerAuth, dpopAuth |
+| `risk-context` | `openapi/risk-context.yaml` | Risk Context Service API | `1.0.0` | 2 | bearerAuth, dpopAuth |
 
 ## Endpoint Catalogue
 
 ## ATM Directory Service API (`atm-directory-service`)
 
-- Contract: `api/openapi/atm-directory-service.yaml`
+- Contract: `openapi/atm-directory-service.yaml`
 - Version: `0.1.0`
 - Security schemes: public
 - Server base URL: `https://api.example.com/open-finance/v1`
@@ -39,7 +73,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Banking Metadata Enrichment Service API (`banking-metadata-service`)
 
-- Contract: `api/openapi/banking-metadata-service.yaml`
+- Contract: `openapi/banking-metadata-service.yaml`
 - Version: `0.1.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.example.com/open-finance/v1`
@@ -53,7 +87,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Business Financial Data Service API (`business-financial-data-service`)
 
-- Contract: `api/openapi/business-financial-data-service.yaml`
+- Contract: `openapi/business-financial-data-service.yaml`
 - Version: `0.1.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.example.com/open-finance/v1/corporate`
@@ -66,7 +100,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Compliance Context Service API (`compliance-context`)
 
-- Contract: `api/openapi/compliance-context.yaml`
+- Contract: `openapi/compliance-context.yaml`
 - Version: `1.0.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.sandbox.openfinance.ae`
@@ -78,7 +112,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Confirmation of Payee Verification Service API (`confirmation-of-payee-service`)
 
-- Contract: `api/openapi/confirmation-of-payee-service.yaml`
+- Contract: `openapi/confirmation-of-payee-service.yaml`
 - Version: `0.1.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.example.com/open-finance/v1`
@@ -89,7 +123,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Consent and Authorization Service API (`consent-authorization-service`)
 
-- Contract: `api/openapi/consent-authorization-service.yaml`
+- Contract: `openapi/consent-authorization-service.yaml`
 - Version: `0.1.0`
 - Security schemes: dpopAuth
 - Server base URL: `https://api.example.com/open-finance/v1`
@@ -104,7 +138,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Customer Context Service API (`customer-context`)
 
-- Contract: `api/openapi/customer-context.yaml`
+- Contract: `openapi/customer-context.yaml`
 - Version: `1.0.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.sandbox.openfinance.ae`
@@ -119,7 +153,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Loan Context Service API (`loan-context`)
 
-- Contract: `api/openapi/loan-context.yaml`
+- Contract: `openapi/loan-context.yaml`
 - Version: `1.0.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.sandbox.openfinance.ae`
@@ -136,7 +170,7 @@ This catalogue is generated from the OpenAPI contracts under `api/openapi`.
 
 ## Open Finance Context Service API (`open-finance-context`)
 
-- Contract: `api/openapi/open-finance-context.yaml`
+- Contract: `openapi/open-finance-context.yaml`
 - Version: `0.1.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.sandbox.openfinance.ae/open-finance`
@@ -145,7 +179,7 @@ No endpoints are currently declared in this contract.
 
 ## Open Products Catalog Service API (`open-products-service`)
 
-- Contract: `api/openapi/open-products-service.yaml`
+- Contract: `openapi/open-products-service.yaml`
 - Version: `0.1.0`
 - Security schemes: public
 - Server base URL: `https://api.example.com/open-finance/v1`
@@ -156,7 +190,7 @@ No endpoints are currently declared in this contract.
 
 ## Payment Context Service API (`payment-context`)
 
-- Contract: `api/openapi/payment-context.yaml`
+- Contract: `openapi/payment-context.yaml`
 - Version: `1.0.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.sandbox.openfinance.ae`
@@ -172,7 +206,7 @@ No endpoints are currently declared in this contract.
 
 ## Personal Financial Data Service API (`personal-financial-data-service`)
 
-- Contract: `api/openapi/personal-financial-data-service.yaml`
+- Contract: `openapi/personal-financial-data-service.yaml`
 - Version: `0.1.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.example.com/open-finance/v1`
@@ -189,7 +223,7 @@ No endpoints are currently declared in this contract.
 
 ## Risk Context Service API (`risk-context`)
 
-- Contract: `api/openapi/risk-context.yaml`
+- Contract: `openapi/risk-context.yaml`
 - Version: `1.0.0`
 - Security schemes: bearerAuth, dpopAuth
 - Server base URL: `https://api.sandbox.openfinance.ae`
